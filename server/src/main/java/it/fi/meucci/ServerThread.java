@@ -38,17 +38,21 @@ public class ServerThread extends Thread{
         {
             String stringa_ricevuta = inDalClient.readLine();
             Messaggio messaggio = mapper.readValue(stringa_ricevuta, Messaggio.class);
-            if (messaggio.getnomeNazione() == null){
+            System.out.println(stringa_ricevuta);
+            if(messaggio.getnomeNazione() == null && messaggio.getPersone().size() == 0){
+                System.out.println("SERVER: Invio lista delle persone");
+                messaggio = new Messaggio(null , anagrafe);
+                outVersoClient.writeBytes(mapper.writeValueAsString(messaggio) + "\n");
+            }else if (messaggio.getnomeNazione() == null && messaggio.getPersone().size() != 0){
                 for(int i = 0; i < messaggio.getPersone().size(); i++){
                     anagrafe.add(messaggio.getPersone().get(i));
                 }
                 System.out.println("SERVER: Le persone sono state aggiunte");
-                Messaggio m = new Messaggio(null , null);
-                outVersoClient.writeBytes(mapper.writeValueAsString(m) + "\n");
-            } else if(messaggio.getnomeNazione() == null && messaggio.getPersone() == null){
-                System.out.println("SERVER: Invio lista delle persone");
-                Messaggio a = new Messaggio(null , anagrafe);
-                outVersoClient.writeBytes(mapper.writeValueAsString(a) + "\n");
+                messaggio = new Messaggio(null , null);
+                outVersoClient.writeBytes(mapper.writeValueAsString(messaggio) + "\n");
+                for(int i = 0; i < anagrafe.size(); i++){
+                    System.out.println(anagrafe.get(i).getCognome());
+                }
             }else{
                 ArrayList<Persona> nazionespecifica = new ArrayList<>();
                 for(int i = 0; i < anagrafe.size(); i++){
@@ -57,8 +61,8 @@ public class ServerThread extends Thread{
                     }
                 }
                 System.out.println("SERVER: Invio lista delle persone provenienti da: " + messaggio.getnomeNazione());
-                Messaggio n = new Messaggio(null , nazionespecifica);
-                outVersoClient.writeBytes(mapper.writeValueAsString(n) + "\n");
+                messaggio = new Messaggio(null , nazionespecifica);
+                outVersoClient.writeBytes(mapper.writeValueAsString(messaggio) + "\n");
             }
         }
     }

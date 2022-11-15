@@ -82,10 +82,10 @@ public class Client {
         try{
             Messaggio m = new Messaggio(nazione , null);
             outVersoServer.writeBytes(mapper.writeValueAsString(m) + "\n");
-            System.out.println("CLIENT: Nazione richiesta");
+            System.out.println("CLIENT: Lista nazione richiesta: \n");
             String stringa_ricevuta = inDalServer.readLine();
             Messaggio a = mapper.readValue(stringa_ricevuta, Messaggio.class);
-            for(int i = 0; i < a.getPersone().size(); i++){
+            for(int i = 0; i < a.persone.size(); i++){
                 System.out.println("nome: " + a.getPersone().get(i).getNome() + " cognome: " + a.getPersone().get(i).getCognome() + " nazione: " + a.getPersone().get(i).getNazioneDiResidenza());
             }
         }catch(Exception e){
@@ -95,11 +95,13 @@ public class Client {
 
     public void listaIntera(){
         try{
-            Messaggio m = new Messaggio(null , null);
+            ArrayList<Persona> vuota = new ArrayList<>();
+            Messaggio m = new Messaggio(null , vuota);
             outVersoServer.writeBytes(mapper.writeValueAsString(m) + "\n");
             System.out.println("CLIENT: Lista richiesta");
             String stringa_ricevuta = inDalServer.readLine();
             Messaggio a = mapper.readValue(stringa_ricevuta, Messaggio.class);
+            System.out.println(stringa_ricevuta);
             for(int i = 0; i < a.getPersone().size(); i++){
                 System.out.println("nome: " + a.getPersone().get(i).getNome() + " cognome: " + a.getPersone().get(i).getCognome() + " nazione: " + a.getPersone().get(i).getNazioneDiResidenza());
             }
