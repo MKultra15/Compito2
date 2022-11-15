@@ -3,23 +3,23 @@ package it.fi.meucci;
 import java.util.ArrayList;
 
 public class Messaggio {
-    String nome;
+    String nomeNazione;
     ArrayList <Persona> persone = new ArrayList<>();
 
-    public Messaggio(String nome, ArrayList<Persona> persone) {
-        this.nome = nome;
+    public Messaggio(String nomeNazione, ArrayList<Persona> persone) {
+        this.nomeNazione = nomeNazione;
         this.persone = persone;
     }
 
     public Messaggio() {
     }
 
-    public String getNome() {
-        return nome;
+    public String getNomeNazione() {
+        return nomeNazione;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setNomeNazione(String nomeNazione) {
+        this.nomeNazione = nomeNazione;
     }
 
     public ArrayList<Persona> getPersone() {

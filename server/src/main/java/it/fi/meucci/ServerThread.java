@@ -3,9 +3,10 @@ package it.fi.meucci;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ServerThread extends Thread{
     ServerSocket server = null;
@@ -14,47 +15,19 @@ public class ServerThread extends Thread{
     String stringaModificata = null;
     BufferedReader inDalClient;
     DataOutputStream outVersoClient;
+    ObjectMapper mapper = new ObjectMapper();
+    ArrayList<Persona> anagrafe = new ArrayList<>();
 
-    public ServerThread(Socket socket){
-        this.client = socket;
-        try
-        {
-            server = new ServerSocket(1510);
-        }
-        catch(Exception e)
-        {
-            System.out.println("SERVER: server off");
-        }
+    public ServerThread(Socket c){
+        this.client = c;
     }
 
-    public void run()
-    {
-        try
-        {
-            
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace(System.out);
-        }
-    }
-
-    public Socket attendi()
-    {
-        try
-        {
-            System.out.println("SERVER: avviato");
-            client = server.accept();
-            inDalClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            outVersoClient = new DataOutputStream(client.getOutputStream());
-        }
-        catch(Exception e)
-        {
+    public void run(){
+        try {
+            this.comunica();
+        }catch(Exception e){
             System.out.println(e.getMessage());
-            System.out.println("SERVER: errore!");
-            System.exit(1);
         }
-        return client;
     }
 
     public void comunica () throws Exception
@@ -63,6 +36,30 @@ public class ServerThread extends Thread{
         outVersoClient = new DataOutputStream(client.getOutputStream());
         for(;;)
         {
+            String stringa_ricevuta = inDalClient.readLine();
+            Messaggio messaggio = mapper.readValue(stringa_ricevuta, Messaggio.class);
+            if (messaggio.getnomeNazione() == null){
+                for(int i = 0; i < messaggio.getPersone().size(); i++){
+                    anagrafe.add(messaggio.getPersone().get(i));
+                }
+                System.out.println("SERVER: Le persone sono state aggiunte");
+                Messaggio m = new Messaggio(null , null);
+                outVersoClient.writeBytes(mapper.writeValueAsString(m) + "\n");
+            } else if(messaggio.getnomeNazione() == null && messaggio.getPersone() == null){
+                System.out.println("SERVER: Invio lista delle persone");
+                Messaggio a = new Messaggio(null , anagrafe);
+                outVersoClient.writeBytes(mapper.writeValueAsString(a) + "\n");
+            }else{
+                ArrayList<Persona> nazionespecifica = new ArrayList<>();
+                for(int i = 0; i < anagrafe.size(); i++){
+                    if(anagrafe.get(i).getNazioneDiResidenza() == messaggio.getnomeNazione()){
+                        nazionespecifica.add(anagrafe.get(i));
+                    }
+                }
+                System.out.println("SERVER: Invio lista delle persone provenienti da: " + messaggio.getnomeNazione());
+                Messaggio n = new Messaggio(null , nazionespecifica);
+                outVersoClient.writeBytes(mapper.writeValueAsString(n) + "\n");
+            }
         }
     }
 }
